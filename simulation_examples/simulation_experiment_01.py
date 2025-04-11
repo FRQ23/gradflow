@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 
     # ===> 3. Ejecutar las Simulaciones <===
-    #    Esta única línea hace todo el trabajo pesado.
+    #    Esta única línea hace to do el trabajo pesado.
     try:
         print("Iniciando runner.run()...")
         runner.run()
