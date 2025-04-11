@@ -3,8 +3,9 @@ import os
 import aspose.tasks as tasks
 from typing import Dict, List, Optional
 
-# Importar desde el mismo paquete 'core'
-from .entities import Task, Resource
+# --- Importar Componentes del Proyecto (Absolutos desde 'core') ---
+from core.entities import Task, Resource # <-- Importación Absoluta
+# --- Fin Importaciones ---
 
 class Project:
     """

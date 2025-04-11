@@ -1,11 +1,12 @@
-# simulation_examples/simulation_experiment_01.py # O como prefieras llamarlo
+# simulation_examples/simulation_experiment_01.py
+import os
+import pandas as pd
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
 
-# Importar las clases de configuración y ejecución desde core
-# ASUME que runner.py está en core/simulation/runner.py
-from core.simulation.runner import SimulationRunner, ExperimentConfig
-# Estas importaciones son necesarias si descomentas el bloque 4 opcional
-# import os
-# import pandas as pd
+# --- Importaciones de CORE (Absolutas) ---
+from core.simulation.runner import SimulationRunner, ExperimentConfig # <-- Importación Absoluta
+# --- Fin Importaciones ---
 
 # --- PUNTO DE ENTRADA PRINCIPAL ---
 if __name__ == "__main__":
@@ -21,7 +22,12 @@ if __name__ == "__main__":
             {"resource_id": 1, "name": "Dev Jr", "cost_per_hour": 30.0},
             {"resource_id": 2, "name": "Dev Mid", "cost_per_hour": 45.0},
             {"resource_id": 3, "name": "Dev Sr", "cost_per_hour": 60.0},
-            {"resource_id": 4, "name": "QA", "cost_per_hour": 35.0}
+            {"resource_id": 4, "name": "QA", "cost_per_hour": 35.0},
+            {"resource_id": 5, "name": "PM", "cost_per_hour": 50.0},
+            {"resource_id": 6, "name": "UX", "cost_per_hour": 40.0},
+            {"resource_id": 7, "name": "BA", "cost_per_hour": 55.0},
+            {"resource_id": 8, "name": "DevOps", "cost_per_hour": 70.0},
+            {"resource_id": 9, "name": "SysAdmin", "cost_per_hour": 65.0}
         ],
         simulation_params={ # Ajusta los parámetros de simulación
             "error_margin": 0.20,   # Aumentar margen de error
@@ -59,16 +65,17 @@ if __name__ == "__main__":
 
     # ===> 4. (Opcional) Acceder a los resultados AGREGADOS si es necesario ===
     #    (Descomenta si quieres hacer análisis extra aquí)
-    '''
+
     # Necesitarías importar pandas y os arriba si descomentas esto
     results_df = runner.get_results()
     if results_df is not None:
         print("\nPrimeras 5 filas de resultados agregados:")
         print(results_df.head())
+        print("\nResumen de estadísticas:")
+        print(results_df.describe())
         # Ejemplo: Calcular costo final promedio
         # avg_final_cost = results_df.loc[results_df.groupby('simulation_id')['Time'].idxmax()]['ActualCost'].mean()
         # print(f"Costo final promedio: {avg_final_cost:.2f}")
-    '''
+
 
     print("\nScript de experimento finalizado.")
-    # El bloque opcional está comentado con ''' y correctamente indentado.
