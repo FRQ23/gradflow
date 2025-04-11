@@ -1,8 +1,7 @@
 # core/simulation/model.py
 import random
 from copy import deepcopy
-from typing import List, Optional
-import pandas as pd
+
 
 # --- Importar Componentes de Mesa ---
 from mesa import Model
