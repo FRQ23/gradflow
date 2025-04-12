@@ -4,3 +4,5 @@ pandas~=2.0.3
 aspose-tasks
 mesa~=3.0.3
 JPype1
+lxml
+isodate

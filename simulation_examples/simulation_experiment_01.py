@@ -1,77 +1,102 @@
 # simulation_examples/simulation_experiment_01.py
+"""
+Ejemplo Simplificado de Ejecución de Simulación.
+------------------------------------------------
+Este script configura y ejecuta una simulación de gestión de proyectos.
+Modifica los valores en la sección '--- CONFIGURACIÓN DEL EXPERIMENTO ---'
+para ajustar la simulación a tus necesidades.
+"""
+import sys
+import os
+import traceback # Aunque runner maneja errores, útil si falla el import inicial
 
-# --- Importaciones de CORE (Absolutas) ---
-from core.simulation.runner import SimulationRunner, ExperimentConfig # <-- Importación Absoluta
-# --- Fin Importaciones ---
+# --- Configuración del Entorno (Importante para encontrar 'core') ---
+# Añadir el directorio raíz del proyecto al PYTHONPATH
+# Asume que este script está en 'simulation_examples' y 'core' está en la raíz
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.normpath(os.path.join(current_dir, '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+# --- Fin Configuración del Entorno ---
 
-# --- PUNTO DE ENTRADA PRINCIPAL ---
-if __name__ == "__main__":
-
-    # ===> 1. Definir la Configuración del Experimento <===
-    #    Un usuario nuevo SOLO necesita modificar esta sección.
-    config = ExperimentConfig(
-        # --- Personaliza tu experimento aquí ---
-        mpp_file_name="Software Development Plan.mpp", # Archivo en data/
-        num_simulations=5, # Número de ejecuciones
-        resources_definition=[ # Define los recursos a usar
-            # CORREGIDO: Usar "resource_id" como clave
-            {"resource_id": 1, "name": "Dev Jr", "cost_per_hour": 30.0},
-            {"resource_id": 2, "name": "Dev Mid", "cost_per_hour": 45.0},
-            {"resource_id": 3, "name": "Dev Sr", "cost_per_hour": 60.0},
-            {"resource_id": 4, "name": "QA", "cost_per_hour": 35.0},
-            {"resource_id": 5, "name": "PM", "cost_per_hour": 50.0},
-            {"resource_id": 6, "name": "UX", "cost_per_hour": 40.0},
-            {"resource_id": 7, "name": "BA", "cost_per_hour": 55.0},
-            {"resource_id": 8, "name": "DevOps", "cost_per_hour": 70.0},
-            {"resource_id": 9, "name": "SysAdmin", "cost_per_hour": 65.0}
-        ],
-        simulation_params={ # Ajusta los parámetros de simulación
-            "error_margin": 0.20,   # Aumentar margen de error
-            "reassignment_frequency": 10, # Reasignar cada 10 pasos
-            "max_steps": 600         # Más pasos máximos
-        },
-        output_filename_base="experimento_simple_resultados", # Nombre del archivo de salida
-        add_timestamp_to_filename=False, # Sobrescribir archivo de salida
-        print_last_run_summary=True      # Mostrar resumen al final
-        # --- Fin de la personalización ---
-    )
-
-    # ===> 2. Crear el Ejecutor de Simulaciones <===
-    #    Se le pasa la configuración completa.
-    try:
-        runner = SimulationRunner(config=config)
-        print(f"SimulationRunner creado para '{config.output_filename_base}'.")
-    except Exception as e:
-        print(f"Error Fatal: No se pudo crear SimulationRunner: {e}")
-        exit(1) # Salir si el runner no se puede inicializar
+# --- Importar Componentes Esenciales ---
+try:
+    from core.simulation.runner import ExperimentConfig, SimulationRunner
+except ImportError:
+    print("Error Fatal: No se pudo importar 'ExperimentConfig' o 'SimulationRunner'.")
+    print(f"Verifica que sys.path incluye la raíz del proyecto ('{project_root}') y la estructura es correcta.")
+    traceback.print_exc()
+    sys.exit(1) # Salir si no se puede importar lo esencial
+# --- Fin Importar Componentes ---
 
 
-    # ===> 3. Ejecutar las Simulaciones <===
-    #    Esta única línea hace to do el trabajo pesado.
-    try:
-        print("Iniciando runner.run()...")
-        runner.run()
-        print("runner.run() finalizado.")
-    except Exception as e:
-        print(f"Error Fatal: Ocurrió un error durante la ejecución de runner.run(): {e}")
-        import traceback
-        traceback.print_exc() # Imprime el traceback detallado para depuración
-        exit(1) # Salir si la ejecución falla
+# --- CONFIGURACIÓN DEL EXPERIMENTO ---
+# Este es el ÚNICO bloque que un usuario debería necesitar modificar normalmente.
+
+experiment_settings = ExperimentConfig(
+    # --- Archivo de Entrada y Lector ---
+    mpp_file_name="Software Development Plan.xml",  # Archivo de proyecto (ej. .xml, .mpp)
+    data_folder_relative_path="data",             # Carpeta (relativa a la raíz) donde está el archivo
+    reader_type="xml",                            # Lector: "xml", "mpxj", "aspose"
+
+    # --- Parámetros Clave de la Simulación ---
+    simulation_params={
+        "error_margin": 0.1,        # Margen +/- en la duración/trabajo de tareas
+        "reassignment_frequency": 0,  # Frecuencia de reasignación de tareas (0 = nunca)
+        "max_steps": 3000             # Límite de pasos (días/horas simulados)
+    },
+
+    # --- Configuración de la Ejecución ---
+    num_simulations=5,                            # Número de ejecuciones Monte Carlo
+    output_filename_base="sim_sdp_results_v2",    # Nombre base para el archivo CSV de salida
+    add_timestamp_to_filename=True,               # Añadir fecha/hora al nombre del archivo CSV?
+    output_folder_relative_path="core/generated", # Carpeta (relativa a la raíz) para guardar CSV
+
+    # --- Opciones de Visualización en Consola ---
+    show_loaded_tasks=True,      # Mostrar lista de tareas al inicio? (True/False)
+    show_loaded_resources=True,  # Mostrar lista de recursos/agentes al inicio? (True/False)
+    display_limit=15,             # Límite de ítems a mostrar si las opciones anteriores son True
+    print_last_run_summary=True,  # Mostrar resumen de EVM al final? (True/False)
+
+    # --- (Avanzado) Definición de Costos de Recursos ---
+    # Útil si el archivo de proyecto no tiene costos o quieres probar otros.
+    # Formato: [{'resource_id': ID_RECURSO, 'cost_per_hour': COSTO}, ...]
+    # Déjalo vacío `[]` para usar los costos del archivo de proyecto.
+    resources_definition=[]
+    # Ejemplo: resources_definition=[{'resource_id': 4, 'cost_per_hour': 30.0}] # Cambiar costo del Developer
+)
+
+# --- FIN DE LA CONFIGURACIÓN ---
 
 
-    # ===> 4. (Opcional) Acceder a los resultados AGREGADOS si es necesario ===
-    #    (Descomenta si quieres hacer análisis extra aquí)
+# --- EJECUCIÓN DE LA SIMULACIÓN ---
+# Esta parte no necesita ser modificada por el usuario.
 
-    # Necesitarías importar pandas y os arriba si descomentas esto
-    results_df = runner.get_results()
-    if results_df is not None:
-        print("\nPrimeras 5 filas de resultados agregados:")
-        print(results_df.head())
-        print("\nResumen de estadísticas:")
-        print(results_df.describe())
-        # Ejemplo: Calcular costo final promedio
-        # avg_final_cost = results_df.loc[results_df.groupby('simulation_id')['Time'].idxmax()]['ActualCost'].mean()
-        # print(f"Costo final promedio: {avg_final_cost:.2f}")
+print("=" * 70)
+print(" Ejecutando Experimento de Simulación de Gestión de Proyectos ")
+print("=" * 70)
+print(f"Configuración:")
+print(f"  - Archivo Proyecto : {experiment_settings.mpp_file_name} (en {experiment_settings.data_folder_relative_path}/)")
+print(f"  - Lector Usado     : {experiment_settings.reader_type.upper()}")
+print(f"  - Simulaciones     : {experiment_settings.num_simulations}")
+print(f"  - Parámetros Sim   : {experiment_settings.simulation_params}")
+print("-" * 70)
 
+# 1. Crear el Runner con la configuración definida
+#    El Runner se encargará de toda la lógica interna.
+runner = SimulationRunner(config=experiment_settings)
 
-    print("\nScript de experimento finalizado.")
+# 2. Ejecutar el proceso completo.
+#    El método .run() encapsula la preparación, ejecución,
+#    manejo de errores principales, guardado de resultados y limpieza.
+runner.run()
+
+# 3. Fin del script.
+#    Los resultados (si se generaron) están en el archivo CSV indicado
+#    en la configuración y mostrado en los logs del runner.
+#    El runner también imprime un resumen si se configuró.
+
+print("\n" + "=" * 70)
+print(" Script de Experimento Finalizado. ")
+print(f" Revisa los logs y el archivo CSV en: {experiment_settings.output_folder_relative_path} ")
+print("=" * 70)
