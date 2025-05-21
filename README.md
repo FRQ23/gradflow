@@ -2,6 +2,19 @@
 
 Este repositorio contiene el prototipo web del simulador de proyectos ABP (Aprendizaje Basado en Proyectos).
 
+## Cómo Obtener el Prototipo
+
+### Opción 1: Descargar ZIP
+1. Ve a https://github.com/FRQ23/gradflow
+2. Haz clic en el botón verde "Code"
+3. Selecciona "Download ZIP"
+4. Extrae el archivo ZIP en tu computadora
+
+### Opción 2: Clonar el Repositorio
+```bash
+git clone https://github.com/FRQ23/gradflow.git
+```
+
 ## Cómo Ver el Prototipo
 
 1. Navega a la carpeta `prototipo_web`
